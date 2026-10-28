@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Тапёр — вход в ЮMoney</title>
+<style>
+  :root { color-scheme: dark; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    background: #15161C; color: #ECEDF2;
+    font: 16px/1.5 "Segoe UI", system-ui, -apple-system, sans-serif;
+    padding: 16px; box-sizing: border-box;
+  }
+  .card { text-align: center; max-width: 440px; width: 100%; }
+  .mark { font-size: 44px; line-height: 1; }
+  h1 { font-size: 22px; margin: 12px 0 8px; font-weight: 600; }
+  p { color: #9EA2B0; margin: 8px 0; }
+  .code {
+    margin: 18px 0 10px; padding: 12px 14px;
+    background: #1D1F27; border: 1px solid #2B2E3A; border-radius: 10px;
+    font-family: "JetBrains Mono", ui-monospace, Consolas, monospace;
+    font-size: 15px; word-break: break-all; user-select: all;
+  }
+  button {
+    font: inherit; color: #15161C; background: #7FD1AE;
+    border: 0; border-radius: 8px; padding: 10px 18px; cursor: pointer;
+  }
+  button:hover { background: #95DCBD; }
+  .hint { font-size: 14px; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="mark" id="mark">⏳</div>
+  <h1 id="title">Возвращаемся в Тапёр…</h1>
+  <p id="text">Окно браузера можно будет закрыть.</p>
+
+  <div id="manual" class="hidden">
+    <div class="code" id="code"></div>
+    <button id="copy" type="button">Скопировать код</button>
+    <p class="hint">Вставь этот код в окно Тапёра — он его ждёт.</p>
+  </div>
+</div>
+
+<script>
+(function () {
+  // Страница-переходник: ЮMoney требует адрес возврата по https, а Тапёр слушает
+  // локальный адрес по http. Обычный переход с https на http браузер разрешает.
+  var LOCAL = 'http://127.0.0.1:47220/ym-callback';
+
+  var q = new URLSearchParams(location.search);
+  var code = q.get('code');
+  var state = q.get('state');
+  var error = q.get('error');
+
+  var mark = document.getElementById('mark');
+  var title = document.getElementById('title');
+  var text = document.getElementById('text');
+  var manual = document.getElementById('manual');
+
+  function show(sym, head, body) {
+    mark.textContent = sym;
+    title.textContent = head;
+    text.textContent = body;
+  }
+
+  if (error || !code) {
+    show('⚠', 'Вход не выполнен', error === 'access_denied'
+      ? 'Доступ к кошельку не был разрешён. Закрой вкладку и попробуй ещё раз в Тапёре.'
+      : 'ЮMoney не передал код. Закрой вкладку и попробуй ещё раз в Тапёре.');
+    return;
+  }
+
+  // Код показываем сразу: если Тапёр не отзовётся, браузер покажет свою ошибку,
+  // и по кнопке «Назад» человек вернётся сюда и просто скопирует код руками.
+  document.getElementById('code').textContent = code;
+  manual.classList.remove('hidden');
+
+  document.getElementById('copy').addEventListener('click', function () {
+    var btn = this;
+    var done = function () { btn.textContent = 'Скопировано'; setTimeout(function () { btn.textContent = 'Скопировать код'; }, 1600); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code).then(done, function () { fallbackCopy(); done(); });
+    } else { fallbackCopy(); done(); }
+  });
+
+  function fallbackCopy() {
+    var r = document.createRange();
+    r.selectNodeContents(document.getElementById('code'));
+    var s = getSelection(); s.removeAllRanges(); s.addRange(r);
+    try { document.execCommand('copy'); } catch (e) {}
+  }
+
+  // Адрес собираем сами, из query ничего не подставляем — открытым редиректом не станем.
+  var to = LOCAL + '?code=' + encodeURIComponent(code) + (state ? '&state=' + encodeURIComponent(state) : '');
+  setTimeout(function () { location.replace(to); }, 900);
+})();
+</script>
+</body>
+</html>
