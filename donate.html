@@ -3,22 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Заказать трек — Тапёр</title>
+<title>Поддержать — Тапёр</title>
 <style>
   :root { color-scheme: dark; }
   html, body { margin: 0; min-height: 100%; }
   body {
-    display: flex; align-items: flex-start; justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     background: #15161C; color: #ECEDF2;
     font: 16px/1.5 "Segoe UI", system-ui, -apple-system, sans-serif;
     padding: 32px 16px; box-sizing: border-box;
   }
-  .card { width: 100%; max-width: 440px; }
-  h1 { font-size: 26px; margin: 0 0 6px; font-weight: 600; }
-  .sub { color: #9EA2B0; margin: 0 0 24px; font-size: 14px; }
-  h2 { font-size: 17px; margin: 0 0 4px; font-weight: 600; }
-  .block { background: #181A21; border: 1px solid #23252F; border-radius: 14px; padding: 18px; margin-bottom: 16px; }
-  .note { color: #9EA2B0; font-size: 13px; margin: 0 0 14px; }
+  .block {
+    width: 100%; max-width: 440px;
+    background: #181A21; border: 1px solid #23252F; border-radius: 14px; padding: 20px;
+  }
+  h1 { font-size: 20px; margin: 0 0 4px; font-weight: 600; }
+  .note { color: #9EA2B0; font-size: 14px; margin: 0 0 18px; }
   label { display: block; font-size: 13px; color: #8A8E9C; margin: 0 0 6px; }
   .field {
     width: 100%; box-sizing: border-box;
@@ -26,38 +26,18 @@
     padding: 12px 13px; color: #ECEDF2; font: inherit; font-size: 15px; min-height: 48px;
   }
   .field:focus { outline: none; border-color: #9B87FF; }
-  .field::placeholder { color: #7C8090; }
-  .row { margin-bottom: 14px; }
   .btn {
-    display: block; width: 100%; box-sizing: border-box; text-align: center; text-decoration: none;
-    font: inherit; font-weight: 600; font-size: 16px;
+    display: block; width: 100%; box-sizing: border-box; margin-top: 16px;
+    font: inherit; font-weight: 600; font-size: 16px; text-align: center;
     color: #15161C; background: #9B87FF; border: 0; border-radius: 10px;
     padding: 14px; min-height: 52px; cursor: pointer;
   }
   .btn:hover { background: #B9A9FF; }
-  .btn.second { background: transparent; color: #C9CBD4; border: 1px solid #3A3D4A; }
-  .btn.second:hover { background: #1E2029; color: #ECEDF2; }
-  .warn { font-size: 13px; color: #8A8E9C; margin: 12px 0 0; padding-top: 12px; border-top: 1px solid #23252F; }
-  .rules { font-size: 13px; color: #9EA2B0; }
-  .rules p { margin: 0 0 8px; }
-  .rules p:last-child { margin: 0; }
-  .rules b { color: #C9CBD4; font-weight: 600; }
-  .foot { margin: 18px 0 0; font-size: 12px; color: #7C8090; text-align: center; }
 </style>
 </head>
 <body>
-<div class="card">
-  <h1>Заказать трек</h1>
-  <p class="sub">Песня попадёт в очередь автоматически — её не нужно писать в чат.</p>
-
   <div class="block">
-    <h2>Заказать песню</h2>
-    <p class="note">Карта, кошелёк, телефон — подойдёт любой способ. Название пишешь в сообщении к донату.</p>
-    <a class="btn" href="https://www.donationalerts.com/r/alexshikaka">Заказать через DonationAlerts</a>
-  </div>
-
-  <div class="block">
-    <h2>Просто поддержать</h2>
+    <h1>Просто поддержать</h1>
     <p class="note">Перевод на ЮMoney. Между кошельками — без комиссии.</p>
 
     <form method="POST" action="https://yoomoney.ru/quickpay/confirm.xml" accept-charset="utf-8">
@@ -70,30 +50,11 @@
       <input type="hidden" name="need-phone" value="false">
       <input type="hidden" name="need-address" value="false">
 
-      <div class="row">
-        <label for="sum">Сумма, ₽</label>
-        <input class="field" id="sum" name="sum" value="100" inputmode="numeric" data-type="number">
-      </div>
+      <label for="sum">Сумма, ₽</label>
+      <input class="field" id="sum" name="sum" value="100" inputmode="numeric" data-type="number">
 
-      <div class="row">
-        <label for="comment">Сообщение (не обязательно)</label>
-        <input class="field" id="comment" name="comment" maxlength="200" placeholder="пара слов от себя" autocomplete="off">
-      </div>
-
-      <button class="btn second" type="submit">Перевести на ЮMoney</button>
+      <button class="btn" type="submit">Перевести</button>
     </form>
-
-    <p class="warn">Если хочешь заказать песню этим способом — плати <b>с кошелька ЮMoney</b>, тогда сообщение дойдёт. При оплате картой ЮMoney сообщение не передаёт: деньги придут, а песня нет.</p>
   </div>
-
-  <div class="block rules">
-    <p><b>Как заказать.</b> Напиши песню как <b>Исполнитель — Название</b> или дай ссылку на YouTube, Яндекс Музыку, VK или SoundCloud.</p>
-    <p>Несколько песен — через запятую или с новой строки. Цена считается за каждую.</p>
-    <p>Привет и пожелания пиши там же: песню программа найдёт сама.</p>
-    <p>Длинные треки (больше 7 минут) и ролики не про музыку не играю. Любой заказ могу пропустить.</p>
-  </div>
-
-  <p class="foot">Оплата проходит на стороне платёжного сервиса. Данные карты этой странице не передаются.</p>
-</div>
 </body>
 </html>
