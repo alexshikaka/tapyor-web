@@ -1,0 +1,16 @@
+.style-root[data-style="vu"]{width:340px;font-family:"IBM Plex Mono",monospace;color:var(--c);font-weight:700}
+[data-style="vu"] .vu-head{display:flex;gap:10px;align-items:center;width:100%}
+[data-style="vu"] .cover-slot{width:60px;height:60px;background:var(--bg)}
+[data-style="vu"] .vu-title{font-size:24px;line-height:1.05;flex:1 1 auto;min-width:0}
+[data-style="vu"] .vu-line{display:flex;gap:8px;align-items:flex-end;margin-top:2px;width:100%}
+[data-style="vu"] .vu-text{flex:1;min-width:0;overflow:hidden}
+[data-style="vu"] .vu-artist{font-size:18px;color:var(--v);white-space:nowrap;overflow:hidden}
+[data-style="vu"] .vu-who{font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+[data-style="vu"] .viz-nd{display:flex;gap:8px;flex:none;height:40px}
+[data-style="vu"] .vz-nd{position:relative;width:64px;height:40px}
+/* Шкала — SVG как в образце: белая дуга и красный отрезок на ней; стрелка короче радиуса — не выходит за циферблат. */
+[data-style="vu"] .vu-dial{position:absolute;left:0;top:0;width:100%;height:100%}
+[data-style="vu"] .vu-arc{stroke:#fff;stroke-width:3;stroke-linecap:round}
+[data-style="vu"] .vu-red{stroke:var(--a2);stroke-width:4;stroke-linecap:round}
+[data-style="vu"] .needle{position:absolute;left:30.5px;bottom:2px;width:3px;height:26px;background:var(--a2);transform-origin:bottom center}
+[data-style="vu"] .queue{margin-top:6px;font-size:18px}
