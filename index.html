@@ -536,6 +536,10 @@ Daft Punk – Instant Crush <i>(live 2013)</i>
             <button type="button" id="mPlaylist" aria-pressed="true">Плейлист</button>
             <button type="button" id="mMotion" aria-pressed="false">Моушн</button>
           </div>
+          <div class="seg" role="group" aria-label="Где на экране">
+            <button type="button" id="pBr" aria-pressed="true">↘ Снизу справа</button>
+            <button type="button" id="pTr" aria-pressed="false">↗ Сверху справа</button>
+          </div>
           <span class="lbl">Стили</span>
           <div class="styles" id="styleList" role="group" aria-label="Стили оверлея"></div>
         </div>
@@ -689,7 +693,7 @@ Daft Punk – Instant Crush <i>(live 2013)</i>
 
   // Галерея
   var list = document.getElementById('styleList'), frame = document.getElementById('galFrame');
-  var mode = 'playlist', cur = 'card';
+  var mode = 'playlist', cur = 'card', gpos = 'br';
   STYLES.forEach(function (s, i) {
     var b = document.createElement('button');
     b.type = 'button'; b.dataset.id = s[0]; b.setAttribute('aria-pressed', s[0] === cur ? 'true' : 'false');
@@ -702,7 +706,7 @@ Daft Punk – Instant Crush <i>(live 2013)</i>
     cur = id;
     var i = STYLES.findIndex(function (s) { return s[0] === id; });
     list.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.id === id ? 'true' : 'false'); });
-    frame.src = src(mode, id);
+    frame.src = src(mode, id, gpos);
     document.getElementById('galName').textContent = '№' + (i + 1) + ' · ' + STYLES[i][1] + (mode === 'motion' ? ' · моушн' : '');
     document.getElementById('galLabel').textContent = STYLES[i][1];
   }
@@ -710,6 +714,11 @@ Daft Punk – Instant Crush <i>(live 2013)</i>
   function setMode(m) { mode = m; bP.setAttribute('aria-pressed', m === 'playlist'); bM.setAttribute('aria-pressed', m === 'motion'); pick(cur); }
   bP.addEventListener('click', function () { setMode('playlist'); });
   bM.addEventListener('click', function () { setMode('motion'); });
+  // Где на экране: снизу или сверху справа — для плейлиста и моушна одинаково
+  var pBr = document.getElementById('pBr'), pTr = document.getElementById('pTr');
+  function setPos(p) { gpos = p; pBr.setAttribute('aria-pressed', p === 'br'); pTr.setAttribute('aria-pressed', p === 'tr'); pick(cur); }
+  pBr.addEventListener('click', function () { setPos('br'); });
+  pTr.addEventListener('click', function () { setPos('tr'); });
 
   // Первый экран: стиль сменяется сам, пока страница видна
   var heroF = document.querySelector('.hero iframe'), heroCap = document.getElementById('heroStyle');
