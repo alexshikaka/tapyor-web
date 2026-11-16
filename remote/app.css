@@ -1292,7 +1292,10 @@
   /* Группа «Стримерам» в меню настроек: подпись + тумблер; выключено — разделы, вкладка «Заказы» скрыты */
   .set-sblock { display: flex; flex-direction: column; gap: 2px; flex: 0 0 auto; border-radius: 12px; }
   .set-side .set-sep { flex: 0 0 auto; height: 1px; background: var(--ln); margin: 12px 0 2px; }
-  .set-sblock > .set-grp { margin-top: 0; border-top: 0; }
+  .set-side .set-sblock > .set-grp { margin-top: 0; border-top: 0; }
+  /* Пока визард подсвечивает блок, соседние разделители прячем: рамка — единственная линия вокруг (16.11) */
+  .set-side .set-sep:has(+ .set-sblock.wiz-hl) { visibility: hidden; }
+  .set-sblock.wiz-hl + .set-grp { border-top-color: transparent; }
   .set-side .set-grp { display: flex; flex: 0 0 auto; align-items: center; justify-content: space-between; gap: 10px; margin: 12px 0 4px; padding: 12px 12px 6px; border-top: 1px solid var(--ln); }
   .set-grp-t { font: 600 11px/1 'JetBrains Mono', ui-monospace, monospace; letter-spacing: .14em; text-transform: uppercase; color: var(--ac2); }
   .set-side .set-grp .toggle { height: 22px; width: 38px; padding: 3px; border-radius: 11px; background: var(--ln3); justify-content: flex-start; }
