@@ -733,22 +733,11 @@ Daft Punk – Instant Crush <i>(live 2013)</i>
   }, 7000);
 
 
-  // Номер последней версии. Пока в открытом репозитории нет ни одного релиза (GitHub отвечает 404), кнопки
-  // «Скачать» честно говорят «скоро» и ведут в Telegram-канал; с первым релизом станут обычными сами.
-  function noRelease() {
-    document.querySelectorAll('a.btn[href$="/releases/latest"]').forEach(function (a) {
-      a.href = 'https://t.me/tapyor';
-      a.textContent = 'Открытая бета — скоро';
-    });
-    var nb = document.querySelector('.nav a.btn[href="#install"]'); if (nb) nb.textContent = 'Скоро';
-    document.getElementById('ver').textContent = 'Первая версия — скоро, новости в Telegram';
-  }
+  // Номер последней версии. Кнопки «Скачать» всегда ведут на последний релиз открытого репозитория
+  // (github.com/alexshikaka/tapyor/releases/latest) — без подмен (16.11, открытая бета).
   try {
-    fetch('https://api.github.com/repos/alexshikaka/tapyor/releases/latest').then(function (r) {
-      if (r.status === 404) { noRelease(); return null; }
-      return r.ok ? r.json() : null;
-    })
-      .then(function (j) { if (j && j.tag_name) document.getElementById('ver').textContent = 'Версия ' + String(j.tag_name).replace(/^v/, ''); })
+    fetch('https://api.github.com/repos/alexshikaka/tapyor/releases/latest').then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) { if (j && j.tag_name) document.getElementById('ver').textContent = 'Версия ' + String(j.tag_name).replace(/^v/, '') + ' · бета-тест'; })
       .catch(function () {});
   } catch (e) {}
 })();
