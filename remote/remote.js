@@ -394,8 +394,20 @@
     }
     if (ev.ev === 'search') {
       if (ev.id && searchId && ev.id !== searchId) return;
+      if (ev.more && searchResult && searchResult.id === ev.id) {
+        // следующая страница: дописываем, если это продолжение того, что уже показано
+        if (Number(ev.from) === searchResult.items.length) {
+          searchResult.items = searchResult.items.concat(Array.isArray(ev.items) ? ev.items : []);
+          searchResult.total = ev.total;
+          appendResults(ev.items || []);
+        }
+        moreAsked = false;
+        return;
+      }
       searchResult = ev;
+      if (!Array.isArray(searchResult.items)) searchResult.items = [];
       if (typeof ev.q === 'string') searchQ = ev.q;
+      moreAsked = false;
       renderResults();
     }
   }
@@ -422,17 +434,60 @@
     sendCommand({ c: 'search', q: q, id: searchId });
   }
 
+  var moreAsked = false;
+  var SRC_COLOR = { ym: '#FFD43B', yt: '#FF5A52', sc: '#FF7A1A', au: '#CC0FE0', bc: '#41A8C6', lc: '#4ADE9A', tap: '#9B87FF' };
+
   function renderResults() {
     if (!els.results) return;
     clear(els.results);
     els.results.hidden = false;
     var res = searchResult || { done: false, items: [], q: searchQ };
-    var title = make('div', 'res-title', res.done ? (res.items && res.items.length ? 'Найденные треки' : 'Ничего не нашлось') : 'Ищу…');
-    els.results.appendChild(title);
-    var items = Array.isArray(res.items) ? res.items.slice(0, 15) : [];
-    for (var i = 0; i < items.length; i++) {
-      els.results.appendChild(resultRow(items[i]));
+    var head = make('div', 'res-head');
+    var count = Number(res.total) || (res.items ? res.items.length : 0);
+    head.appendChild(make('div', 'res-title', res.done
+      ? (count ? 'Найденные треки · ' + count : 'Ничего не нашлось')
+      : 'Ищу…'));
+    var x = make('button', 'res-x', '✕');
+    x.type = 'button';
+    x.setAttribute('aria-label', 'Закрыть поиск');
+    x.addEventListener('click', function () { closeResults(); if (els.search) { els.search.value = ''; els.search.blur(); } });
+    head.appendChild(x);
+    els.results.appendChild(head);
+    var list = make('div', 'res-list');
+    list.addEventListener('scroll', function () {
+      if (list.scrollTop + list.clientHeight > list.scrollHeight - 160) askMore();
+    }, { passive: true });
+    els.results.appendChild(list);
+    appendResults(res.items || []);
+  }
+
+  function appendResults(items) {
+    var list = els.results && els.results.querySelector('.res-list');
+    if (!list) return;
+    var old = list.querySelector('.res-more'); if (old) old.parentNode.removeChild(old);
+    for (var i = 0; i < items.length; i++) list.appendChild(resultRow(items[i]));
+    var res = searchResult || {};
+    if (res.items && res.total > res.items.length) {
+      var tail = make('div', 'res-more', 'Ещё ' + (res.total - res.items.length) + '…');
+      list.appendChild(tail);
+      // «Ещё…» показалась на экране — просим следующую страницу (надёжнее одного события прокрутки)
+      if (typeof IntersectionObserver === 'function') {
+        var io = new IntersectionObserver(function (ents) {
+          if (ents.some(function (en) { return en.isIntersecting; })) { io.disconnect(); askMore(); }
+        }, { root: list, rootMargin: '0px 0px 160px 0px' });
+        io.observe(tail);
+      }
     }
+    // выдача короче экрана — сразу просим следующую страницу
+    if (list.scrollHeight <= list.clientHeight + 20) askMore();
+  }
+
+  function askMore() {
+    var res = searchResult;
+    if (moreAsked || !res || !res.id || !(res.total > res.items.length)) return;
+    moreAsked = true;
+    sendCommand({ c: 'more', id: res.id, from: res.items.length });
+    setTimeout(function () { moreAsked = false; }, 4000);   // ответ потерялся — можно попросить снова
   }
 
   function resultRow(item) {
@@ -455,7 +510,12 @@
     if (item && item.artist) parts.push(item.artist);
     if (item && item.srcName) parts.push(item.srcName);
     if (item && item.dur) parts.push(item.dur);
-    m.appendChild(make('div', 's', parts.join(' · ')));
+    var sub = make('div', 's');
+    var dot = make('span', 'sd');
+    dot.style.background = SRC_COLOR[item && item.src] || 'var(--tx4)';
+    sub.appendChild(dot);
+    sub.appendChild(document.createTextNode(parts.join(' · ')));
+    m.appendChild(sub);
     row.appendChild(m);
     if (item && typeof item.r === 'string' && item.r) {
       var play = make('button', 'pb', '▶');
@@ -469,6 +529,20 @@
       row.appendChild(add);
     }
     return row;
+  }
+
+  // Запрос для поиска из карточки: найденный трек (как его подобрал Тапёр) или текст сообщения
+  function findFromCard(btn) {
+    var it = btn.closest('.rq-it');
+    var card = btn.closest('.rq');
+    var tt = it && it.querySelector('.tt');
+    var msg = card && card.querySelector('.rq-m');
+    var q = (tt && tt.textContent) || (msg && msg.textContent) || '';
+    q = q.replace(/[«»"“”]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 200);
+    if (!q || !els.search) return;
+    els.search.value = q;
+    try { els.search.focus({ preventScroll: true }); } catch (e) { /* старый браузер */ }
+    doSearch(q);
   }
 
   /* ── команды ───────────────────────────────────────────────────── */
@@ -490,7 +564,7 @@
       });
       if (res.status === 404) { ended(); return; }
       if (!res.ok) throw new Error('bad reply');
-      schedulePoll(400);      // внеочередной опрос: нажатие видно через 1–2 с
+      schedulePoll(RELAY.indexOf('http://') === 0 ? 80 : 300);      // внеочередной опрос: ответ ПК — сразу
     } catch (e) {
       showStatus('Нажатие не ушло. Проверь связь.', 'err', 4000);
     }
@@ -498,6 +572,9 @@
 
   /* ── запуск страницы ───────────────────────────────────────────── */
   function init() {
+    // Новая ссылка пульта в той же вкладке меняет только часть после # — браузер страницу не перезагружает,
+    // и она держала старую (закрытую) сессию. Новая сессия — новая загрузка (16.11).
+    window.addEventListener('hashchange', function () { if (location.hash.length > 20) location.reload(); });
     if (els.tabDock) els.tabDock.addEventListener('click', function () { setTab('dock'); });
     if (els.tabFeed) els.tabFeed.addEventListener('click', function () { setTab('feed'); });
     if (els.prev) els.prev.addEventListener('click', function () { sendCommand({ c: 'tr', a: 'prev' }); });
@@ -529,6 +606,9 @@
         if (v != null) dataset[keys[i]] = String(v).slice(0, 80);
       }
       if (!dataset.rq) return;
+      // «Искать сам» / «Это заказ — искать»: в окне Тапёра они открывают поиск на ПК — с телефона это
+      // бесполезно (и пульт такие кнопки не пропускает). Здесь — ищем в поиске самого пульта (16.11).
+      if (dataset.rq === 'find' || dataset.rq === 'textfind') { findFromCard(btn); return; }
       sendCommand({ c: 'rq', dataset: dataset });
     });
 
