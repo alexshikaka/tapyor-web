@@ -1403,6 +1403,11 @@
   #rmPanel .rm-net { font-size: 15px; font-weight: 500; color: var(--tx2); overflow-wrap: anywhere; }
   #rmPanel .rm-row { display: flex; align-items: flex-end; gap: var(--sp-3); flex-wrap: wrap; }
   #rmPanel .rm-row .rm-grow { flex: 1 1 220px; min-width: 0; }
+  #rmPanel .rm-link { display: flex; flex-direction: column; gap: 6px; }
+  #rmPanel .rm-link .path { overflow-wrap: anywhere; user-select: all; }
+  /* VPN — акцентом: главная причина, почему телефон не подключается по Wi-Fi (16.11) */
+  #rmPanel .bot-note.rm-vpn { background: var(--acbg); border-left: 3px solid var(--ac); }
+  #rmPanel .bot-note.rm-vpn > b:first-child { color: var(--ac); }
   .set-side button.off { opacity: .55; }
   .bot-code { margin: 10px 0 4px; padding: 12px 14px; border-radius: var(--r-ctl); background: var(--acbg); font-size: 14px; color: var(--tx2); }
   .bot-code b { font-size: 18px; color: var(--tx); letter-spacing: .08em; }
