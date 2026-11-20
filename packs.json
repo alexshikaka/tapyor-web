@@ -1,13 +1,13 @@
 {
-  "updated": "2026-11-20T21:34:19.391Z",
+  "updated": "2026-11-20T22:51:30.655Z",
   "packs": [
     {
       "id": "streamer-pack",
       "name": "Пак стримера",
-      "version": "0.4.4",
+      "version": "0.4.5",
       "minCore": "0.32.0",
-      "size": 1888121,
-      "url": "https://github.com/alexshikaka/tapyor-modules/releases/download/streamer-pack-v0.4.4/streamer-pack-0.4.4.tpack",
+      "size": 1888801,
+      "url": "https://github.com/alexshikaka/tapyor-modules/releases/download/streamer-pack-v0.4.5/streamer-pack-0.4.5.tpack",
       "modules": [
         "Чат-бот Twitch",
         "Оверлей-плейлист",
